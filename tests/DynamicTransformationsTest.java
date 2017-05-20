@@ -1,25 +1,12 @@
 import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
-import java.util.Arrays;
 import java.util.List;
 
 class DynamicTransformationsTest {
     @TestFactory
-    List<DynamicTest> createPointTests() {
-        DataGenerator dataGenerator = new DataGenerator();
+    List<DynamicTest> createMutantTests() throws Exception{
 
-        return Arrays.asList(
-                DynamicTest.dynamicTest(
-                        "A Great Test For Transformation",
-                        () -> {
-                        })
-        );
+        return (new DataGenerator()).getTestList();
     }
-    @Test
-    void helloJUnit5() {
-        System.out.println("Hello, JUnit 5.");
-    }
-
 }
