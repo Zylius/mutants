@@ -1,0 +1,5 @@
+Complex_fft(Complex)
+Complex_ifft(Complex)
+Complex_cconvolve(Complex,Complex)
+Complex_convolve(Complex,Complex)
+void_main(java.lang.String)
