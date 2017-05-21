@@ -6,17 +6,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
-public class fftTest extends ComplexTest{
+public class convolveTest extends ComplexTest{
 
-    fftTest(int runTime, DataGenerator dataGenerator, String classFileToTest, Complex[] input) {
+    convolveTest(int runTime, DataGenerator dataGenerator, String classFileToTest, Complex[][] input) {
         super(input, classFileToTest, runTime, dataGenerator);
     }
 
     public Object getResultFromOracle(Object input)
     {
+        Complex[][] complexInput = (Complex[][])input;
         Object expectedResult;
         try {
-            expectedResult = FFTOracle.fft((Complex[]) input);
+            expectedResult = FFTOracle.convolve(complexInput[0], complexInput[1]);
         } catch (Throwable throwable) {
             // Means this should fail.
             expectedResult = throwable;
@@ -26,10 +27,11 @@ public class fftTest extends ComplexTest{
 
     public Callable<Object> getCallable() throws Throwable {
         Class classToTest = (new TestClassLoader()).loadClass(FFT.class.getName(), new File(this.classFileToTest));
-        Method method = classToTest.getDeclaredMethod(DataGenerator.METHOD_FFT, Complex[].class);
+        Method method = classToTest.getDeclaredMethod(DataGenerator.METHOD_CONVOLVE, Complex[].class, Complex[].class);
+        Complex[][] complexInput = (Complex[][])input;
         return () -> {
             try {
-                return method.invoke(null, (Object) fftTest.this.input);
+                return method.invoke(null, (Object)complexInput[0], (Object)complexInput[1]);
             } catch (InvocationTargetException error) {
                 return error.getTargetException();
             } catch (IllegalAccessException exception) {
@@ -40,6 +42,6 @@ public class fftTest extends ComplexTest{
 
     @Override
     public Executable getNextTest() throws IOException {
-        return this.dataGenerator.getFFTTest(new File(classFileToTest), runTime+1);
+        return this.dataGenerator.getConvolveTest(new File(classFileToTest), runTime+1);
     }
 }

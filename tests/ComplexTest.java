@@ -15,14 +15,14 @@ abstract public class ComplexTest  implements Executable {
     String classFileToTest;
     int runTime = 0;
     private String[] unsolvableCases = {"AOIS_59", "AOIS_60", "AOIU_9"};
-    private Object expectedOutput;
-    protected DataGenerator dataGenerator;
+    Object input;
+    DataGenerator dataGenerator;
 
-    public ComplexTest(Object expectedOutput, String classFileToTest, int runTime, DataGenerator dataGenerator)
+    ComplexTest(Object input, String classFileToTest, int runTime, DataGenerator dataGenerator)
     {
         this.dataGenerator = dataGenerator;
         this.classFileToTest = classFileToTest;
-        this.expectedOutput = expectedOutput;
+        this.input = input;
         this.runTime = runTime;
     }
 
@@ -51,12 +51,15 @@ abstract public class ComplexTest  implements Executable {
 
     abstract public Executable getNextTest() throws IOException;
 
+    abstract public Object getResultFromOracle(Object input);
+
     private void compareComplexes(Object actual)
     {
+        Object expectedOutput = this.getResultFromOracle(this.input);
         try {
-            if (this.expectedOutput instanceof Throwable) {
+            if (expectedOutput instanceof Throwable) {
                 assertEquals(
-                        ((Throwable) this.expectedOutput).getClass().toString(),
+                        ((Throwable) expectedOutput).getClass().toString(),
                         actual.getClass().toString()
                 );
                 return;
@@ -69,7 +72,7 @@ abstract public class ComplexTest  implements Executable {
             assertNotNull(actual);
 
             Complex[] actualComplexes = (Complex[])actual;
-            Complex[] expectedComplexes = (Complex[])this.expectedOutput;
+            Complex[] expectedComplexes = (Complex[])expectedOutput;
 
             assertEquals(expectedComplexes.length, actualComplexes.length);
 

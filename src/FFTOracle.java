@@ -180,7 +180,7 @@ public class FFTOracle {
         // should probably pad x and y with 0s so that they have same length
         // and are powers of 2
         if (x.length != y.length) {
-            throw new IllegalArgumentException("Dimensions don't agree");
+            throw new RuntimeException("Dimensions don't agree");
         }
 
         int n = x.length;
