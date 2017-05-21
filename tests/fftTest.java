@@ -51,6 +51,6 @@ public class fftTest implements Executable {
         } catch (TimeoutException timeout) {
             fail("FFT method timeout out for 1 second. Can safely assert it's bad.");
         }
-
+        executor.shutdown();
     }
 }

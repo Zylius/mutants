@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.function.Executable;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +39,13 @@ class DataGenerator {
         return this.testList;
     }
 
+    public Executable getSingleMutantTest(String singleMutant) throws Exception
+    {
+        this.testList = new ArrayList<>();
+
+        return this.getSingleMutantClassExec(DataGenerator.METHOD_FFT, singleMutant);
+    }
+
     /**
      * Adds FFT test to stream.
      */
@@ -46,6 +54,8 @@ class DataGenerator {
         Complex[] input = this.getRandomComplex();
         this.testList.add(DynamicTest.dynamicTest(classFile.getParentFile().getName(), new fftTest(this, classFile.getAbsolutePath(), input, FFTOracle.fft(input))));
     }
+
+
 
     /**
      * Returns a random complex array for testing.
@@ -71,7 +81,6 @@ class DataGenerator {
      */
     private void traverseMutantClasses(String methodToTest) throws ClassNotFoundException, IOException
     {
-        ArrayList<Class> classes = new ArrayList<>();
         File dir = new File("traditional_mutants/" + DataGenerator.methodPaths.get(methodToTest));
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
@@ -83,5 +92,17 @@ class DataGenerator {
                 }
             }
         }
+    }
+
+    /**
+     * Returns mutant classes to be tested.
+     *
+     */
+    private Executable getSingleMutantClassExec(String methodToTest, String mutantToTest) throws ClassNotFoundException, IOException
+    {
+        File dir = new File("traditional_mutants/" + DataGenerator.methodPaths.get(methodToTest) + '/' + mutantToTest);
+        File classFile = dir.listFiles()[0];
+        Complex[] input = this.getRandomComplex();
+        return new fftTest(this, classFile.getAbsolutePath(), input, FFTOracle.fft(input));
     }
 }
