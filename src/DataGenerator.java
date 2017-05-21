@@ -42,11 +42,6 @@ class DataGenerator {
         return this.testList.iterator();
     }
 
-    Executable getSingleMutantTest(String singleMutant) throws Exception
-    {
-        return this.getSingleMutantClassExec(DataGenerator.METHOD_FFT, singleMutant);
-    }
-
     /**
      * Returns FFT test to stream.
      */
@@ -159,21 +154,19 @@ class DataGenerator {
      * Returns mutant classes to be tested.
      *
      */
-    private Executable getSingleMutantClassExec(String methodToTest, String mutantToTest) throws ClassNotFoundException, IOException
+    Executable getSingleMutantClassExec(String methodToTest, String mutantToTest) throws ClassNotFoundException, IOException
     {
         File dir = new File("traditional_mutants/" + DataGenerator.methodPaths.get(methodToTest) + '/' + mutantToTest);
         File classFile = dir.listFiles()[0];
-        Complex[] input = this.getRandomComplex(1);
-        Complex[][] doubleInput = {input, this.getRandomComplex(1)};
         switch (methodToTest){
             case DataGenerator.METHOD_FFT:
-                return new fftTest(1, this, classFile.getAbsolutePath(), input);
+                return this.getFFTTest(classFile, 1);
             case DataGenerator.METHOD_CONVOLVE:
-                return new convolveTest(1, this, classFile.getAbsolutePath(), doubleInput);
+                return this.getConvolveTest(classFile, 1);
             case DataGenerator.METHOD_CCONVOLVE:
-                return new cconvolveTest(1, this, classFile.getAbsolutePath(), doubleInput);
+                return this.getCConvolveTest(classFile, 1);
             default:
-                return new ifftTest(1, this, classFile.getAbsolutePath(), input);
+                return this. getIFFTTest(classFile, 1);
 
         }
     }

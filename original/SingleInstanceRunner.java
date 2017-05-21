@@ -1,3 +1,4 @@
+
 /**
  * Created by Zylius on 2017-05-21.
  *
@@ -6,6 +7,6 @@
 public class SingleInstanceRunner {
     public static void main (String[] args) throws Throwable {
         DataGenerator dataGenerator = new DataGenerator();
-        dataGenerator.getSingleMutantTest(args[0]).execute();
+        dataGenerator.getSingleMutantClassExec(DataGenerator.METHOD_FFT, args[0]).execute();
     }
 }

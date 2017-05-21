@@ -9,7 +9,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library" exported="" scope="RUNTIME">
+    <orderEntry type="module-library" exported="">
       <library name="JUnit5">
         <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/plugins/junit/lib/junit-jupiter-api-5.0.0-M3.jar!/" />
@@ -19,7 +19,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="org.junit.jupiter:junit-jupiter-api:5.0.0-M4" level="application" />
-    <orderEntry type="library" name="org.opentest4j:opentest4j:1.0.0-M1" level="application" />
+    <orderEntry type="library" exported="" name="org.junit.jupiter:junit-jupiter-api:5.0.0-M4" level="application" />
+    <orderEntry type="library" exported="" name="org.opentest4j:opentest4j:1.0.0-M1" level="application" />
   </component>
 </module>
