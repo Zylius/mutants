@@ -3,10 +3,7 @@ import org.junit.jupiter.api.function.Executable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class generates data
@@ -18,6 +15,8 @@ class DataGenerator {
     static final String METHOD_CCONVOLVE = "cconvolve";
     static final String METHOD_IFFT = "ifft";
 
+    private int[] edgeCases = {0, 3};
+    public Random random = new Random();
     private static final Map<String, String> methodPaths;
     static
     {
@@ -28,48 +27,75 @@ class DataGenerator {
         methodPaths.put(DataGenerator.METHOD_CCONVOLVE, "Complex_convolve(Complex,Complex)");
     }
 
-    private List<DynamicTest> testList;
+    private ArrayList<DynamicTest> testList;
 
-    public List<DynamicTest> getTestList() throws Exception
+    public Iterator<DynamicTest> getTestList() throws Exception
     {
-        this.testList = new ArrayList<>();
+        this.testList = new ArrayList<DynamicTest>();
         this.traverseMutantClasses(DataGenerator.METHOD_FFT);
+        this.traverseMutantClasses(DataGenerator.METHOD_IFFT);
 
-
-        return this.testList;
+        return this.testList.iterator();
     }
 
     public Executable getSingleMutantTest(String singleMutant) throws Exception
     {
-        this.testList = new ArrayList<>();
-
         return this.getSingleMutantClassExec(DataGenerator.METHOD_FFT, singleMutant);
     }
 
     /**
-     * Adds FFT test to stream.
+     * Returns FFT test to stream.
      */
-    private void addFFTToStream(File classFile) throws IOException
+    public Executable getFFTTest(File classFile, Integer runTime) throws IOException
     {
-        Complex[] input = this.getRandomComplex();
-        this.testList.add(DynamicTest.dynamicTest(classFile.getParentFile().getName(), new fftTest(this, classFile.getAbsolutePath(), input, FFTOracle.fft(input))));
+        Complex[] input = this.getRandomComplex(this.getDimensions(runTime));
+        Object expectedResult;
+        try {
+            expectedResult = FFTOracle.fft(input);
+        } catch (Throwable throwable) {
+            // Means this should fail.
+            expectedResult = throwable;
+        }
+        return new fftTest(runTime, this, classFile.getAbsolutePath(), input, expectedResult);
     }
 
+    /**
+     * Returns IFFT test to stream.
+     */
+    public Executable getIFFTTest(File classFile, Integer runTime) throws IOException
+    {
+        Complex[] input = this.getRandomComplex(this.getDimensions(runTime));
+        Object expectedResult;
+        try {
+            expectedResult = FFTOracle.ifft(input);
+        } catch (Throwable throwable) {
+            // Means this should fail.
+            expectedResult = throwable;
+        }
+        return new ifftTest(runTime, this, classFile.getAbsolutePath(), input, expectedResult);
+    }
 
+    private int getDimensions(Integer runTime)
+    {
+        if (runTime < 3){
+            return this.edgeCases[runTime - 1];
+        }
+
+        return (int)Math.pow(2, runTime - 2);
+    }
 
     /**
      * Returns a random complex array for testing.
      *
      * @return Complex[]
      */
-    private Complex[] getRandomComplex()
+    private Complex[] getRandomComplex(Integer dimensions)
     {
-        //int dimensions = ThreadLocalRandom.current().nextInt(1, 4);
-        int dimensions = 2;
+        dimensions = dimensions == null ? 2 : dimensions;
         Complex[] complexes = new Complex[dimensions];
         for (int i = 0; i < dimensions; i++) {
-            complexes[i] = new Complex( i, 0 );
-            complexes[i] = new Complex( -2 * Math.random() + 1, 0 );
+            complexes[i] = new Complex(random.nextDouble() * dimensions, random.nextDouble() );
+            complexes[i] = new Complex( -2 * random.nextDouble(), random.nextDouble() );
         }
 
         return complexes;
@@ -85,9 +111,17 @@ class DataGenerator {
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
             for (File child : directoryListing) {
+                File classFile = child.listFiles()[0];
                 switch (methodToTest){
                     case DataGenerator.METHOD_FFT:
-                        this.addFFTToStream(child.listFiles()[0]);
+                        this.testList.add(
+                                DynamicTest.dynamicTest(classFile.getParentFile().getName(), this.getFFTTest(classFile, 1))
+                        );
+                        break;
+                    case DataGenerator.METHOD_IFFT:
+                        this.testList.add(
+                                DynamicTest.dynamicTest(classFile.getParentFile().getName(), this.getIFFTTest(classFile, 1))
+                        );
                         break;
                 }
             }
@@ -102,7 +136,13 @@ class DataGenerator {
     {
         File dir = new File("traditional_mutants/" + DataGenerator.methodPaths.get(methodToTest) + '/' + mutantToTest);
         File classFile = dir.listFiles()[0];
-        Complex[] input = this.getRandomComplex();
-        return new fftTest(this, classFile.getAbsolutePath(), input, FFTOracle.fft(input));
+        Complex[] input = this.getRandomComplex(1);
+        switch (methodToTest){
+            case DataGenerator.METHOD_FFT:
+                return new fftTest(1, this, classFile.getAbsolutePath(), input, FFTOracle.fft(input));
+            default:
+                return new ifftTest(1, this, classFile.getAbsolutePath(), input, FFTOracle.ifft(input));
+
+        }
     }
 }

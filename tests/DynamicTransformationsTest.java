@@ -1,11 +1,11 @@
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
-import java.util.List;
+import java.util.Iterator;
 
 class DynamicTransformationsTest {
     @TestFactory
-    List<DynamicTest> createMutantTests() throws Exception{
+    Iterator<DynamicTest> createMutantTests() throws Exception{
 
         return (new DataGenerator()).getTestList();
     }

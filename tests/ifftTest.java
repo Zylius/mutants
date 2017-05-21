@@ -4,22 +4,22 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 
-public class fftTest extends ComplexTest{
+public class ifftTest extends ComplexTest implements Executable {
     private Complex[] input;
 
-    fftTest(int runTime, DataGenerator dataGenerator, String classFileToTest, Complex[] input, Object expectedOutput) {
+    ifftTest(int runTime, DataGenerator dataGenerator, String classFileToTest, Complex[] input, Object expectedOutput) {
         super(expectedOutput, classFileToTest, runTime, dataGenerator);
         this.input = input;
     }
 
     public Callable<Object> getCallable() throws Throwable {
         Class classToTest = (new TestClassLoader()).loadClass(FFT.class.getName(), new File(this.classFileToTest));
-        Method method = classToTest.getDeclaredMethod(DataGenerator.METHOD_FFT, Complex[].class);
+        Method method = classToTest.getDeclaredMethod(DataGenerator.METHOD_IFFT, Complex[].class);
         return () -> {
             try {
-                return method.invoke(null, (Object) fftTest.this.input);
+                return method.invoke(null, (Object) ifftTest.this.input);
             } catch (InvocationTargetException error) {
                 return error.getTargetException();
             } catch (IllegalAccessException exception) {
@@ -30,6 +30,6 @@ public class fftTest extends ComplexTest{
 
     @Override
     public Executable getNextTest() throws IOException {
-        return this.dataGenerator.getFFTTest(new File(classFileToTest), runTime+1);
+        return this.dataGenerator.getIFFTTest(new File(classFileToTest), runTime+1);
     }
 }
