@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 abstract public class ComplexTest  implements Executable {
 
     String classFileToTest;
-    int runTime;
+    int runTime = 0;
     private String[] unsolvableCases = {"AOIS_59", "AOIS_60", "AOIU_9"};
     private Object expectedOutput;
     protected DataGenerator dataGenerator;
@@ -53,30 +53,34 @@ abstract public class ComplexTest  implements Executable {
 
     private void compareComplexes(Object actual)
     {
+        try {
+            if (this.expectedOutput instanceof Throwable) {
+                assertEquals(
+                        ((Throwable) this.expectedOutput).getClass().toString(),
+                        actual.getClass().toString()
+                );
+                return;
+            }
 
-        if (this.expectedOutput instanceof Throwable) {
-            assertEquals(
-                    ((Throwable) this.expectedOutput).getClass().toString(),
-                    actual.getClass().toString()
-            );
-            return;
-        }
 
+            if (!(actual instanceof Complex[])) {
+                fail("Exception thrown by the mutation but not by the oracle. " + ((Throwable)actual).getClass().getName());
+            }
+            assertNotNull(actual);
 
-        if (!(actual instanceof Complex[])) {
-            fail("Exception thrown by the mutation but not by the oracle. " + ((Throwable)actual).getClass().getName());
-        }
-        assertNotNull(actual);
+            Complex[] actualComplexes = (Complex[])actual;
+            Complex[] expectedComplexes = (Complex[])this.expectedOutput;
 
-        Complex[] actualComplexes = (Complex[])actual;
-        Complex[] expectedComplexes = (Complex[])this.expectedOutput;
+            assertEquals(expectedComplexes.length, actualComplexes.length);
 
-        assertEquals(expectedComplexes.length, actualComplexes.length);
-
-        for (Complex expectedComplex : expectedComplexes) {
-            assertNotNull(actualComplexes[Arrays.asList(expectedComplexes).indexOf(expectedComplex)]);
-            assertEquals(expectedComplex.Im(), actualComplexes[Arrays.asList(expectedComplexes).indexOf(expectedComplex)].Im());
-            assertEquals(expectedComplex.Re(), actualComplexes[Arrays.asList(expectedComplexes).indexOf(expectedComplex)].Re());
+            for (Complex expectedComplex : expectedComplexes) {
+                assertNotNull(actualComplexes[Arrays.asList(expectedComplexes).indexOf(expectedComplex)]);
+                assertEquals(expectedComplex.Im(), actualComplexes[Arrays.asList(expectedComplexes).indexOf(expectedComplex)].Im());
+                assertEquals(expectedComplex.Re(), actualComplexes[Arrays.asList(expectedComplexes).indexOf(expectedComplex)].Re());
+            }
+        } catch (AssertionError ex) {
+            System.out.println("Needed " + this.runTime + " times to fail");
+            throw ex;
         }
     }
 }
